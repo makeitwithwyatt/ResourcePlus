@@ -1,0 +1,49 @@
+[gd_scene load_steps=3 format=3 uid="uid://dpxb62ugj0y02"]
+
+[ext_resource type="Script" path="res://addons/ResourcePlus/src/Resources.gd" id="1_2mmtg"]
+[ext_resource type="Script" path="res://addons/ResourcePlus/src/ResourceTree.gd" id="2_22tl0"]
+
+[node name="Resources" type="VBoxContainer"]
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_top = -2.0
+offset_bottom = -2.0
+grow_horizontal = 2
+grow_vertical = 2
+size_flags_horizontal = 3
+size_flags_vertical = 3
+script = ExtResource("1_2mmtg")
+
+[node name="Tree" type="Tree" parent="."]
+layout_mode = 2
+size_flags_vertical = 3
+hide_root = true
+script = ExtResource("2_22tl0")
+
+[node name="BaseMenu" type="PopupMenu" parent="."]
+size = Vector2i(179, 100)
+item_count = 3
+item_0/text = "Create New"
+item_0/id = 1
+item_1/text = ""
+item_1/id = 2
+item_1/separator = true
+item_2/text = "Show in FileSystem"
+item_2/id = 0
+
+[node name="InstanceMenu" type="PopupMenu" parent="."]
+size = Vector2i(179, 100)
+item_count = 1
+item_0/text = "Show in FileSystem"
+item_0/id = 0
+
+[node name="FileDialog" type="FileDialog" parent="."]
+size = Vector2i(392, 159)
+filters = PackedStringArray("*.tres")
+
+[connection signal="visibility_changed" from="." to="." method="_on_visibility_changed"]
+[connection signal="gui_input" from="Tree" to="." method="_on_tree_gui_input"]
+[connection signal="id_pressed" from="BaseMenu" to="." method="_on_popup_menu_id_pressed"]
+[connection signal="id_pressed" from="InstanceMenu" to="." method="_on_popup_menu_id_pressed"]
+[connection signal="file_selected" from="FileDialog" to="." method="_on_file_dialog_file_selected"]

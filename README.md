@@ -1,0 +1,1 @@
+Simple yet effective Quality of Life enhancement for Resource management in Godot.
