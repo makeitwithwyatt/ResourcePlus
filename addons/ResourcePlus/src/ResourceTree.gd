@@ -14,6 +14,7 @@ func add_base_resource(resource):
 		parent = tree_nodes[resource["base"]]
 	var item = create_item(parent)
 	item.set_text(0, resource["class"])
+	item.set_metadata(0,"Folder")
 	var load_icon = base_control.get_theme_icon("Folder", "EditorIcons")
 	item.set_icon(0, load_icon)
 	tree_nodes[resource["class"]] = item
