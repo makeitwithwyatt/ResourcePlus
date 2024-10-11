@@ -110,7 +110,8 @@ func refresh():
 
 	for i in tree_nodes:
 		var text = i.get_text(0)
-		i.collapsed = prev_tree[text]
+		if prev_tree.has(text):
+			i.collapsed = prev_tree[text]
 
 	for i in tree_nodes:
 
