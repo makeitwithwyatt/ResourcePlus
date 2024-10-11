@@ -1,0 +1,35 @@
+[gd_resource type="Resource" script_class="Resource_Saved_Data" load_steps=2 format=3 uid="uid://clki5ew1igngg"]
+
+[ext_resource type="Script" path="res://addons/ResourcePlus/src/Resource_Saved_Data.gd" id="1_mq8iu"]
+
+[resource]
+script = ExtResource("1_mq8iu")
+RESOURCE_SAVED_DATA = {
+"res://Buff_Resource.gd": Color(0.96875, 1, 0, 1),
+"res://Curse_Resource.gd": Color(0, 1, 0.0625, 1),
+"res://Effect_Resource.gd": Color(0.867188, 0.0982361, 0.638905, 1),
+"res://Game_Resource.gd": Color(0.0078125, 0, 1, 1),
+"res://addons/ResourcePlus/src/Resource_Saved_Data.gd": Color(0.0189209, 0.96875, 0.41221, 1),
+"res://addons/resources_spreadsheet_view/import_export/spreadsheet_import.gd": Color(0.867188, 0.0982361, 0.0982361, 1)
+}
+RESOURCE_COLLAPSED_VALUE = {
+null: true,
+"Attack Speed": false,
+"Audio": false,
+"Bloodlust 3": false,
+"Buff 1": false,
+"Buff 2": false,
+"Buff_Resource": false,
+"Curse Of Ra": false,
+"Curse_Resource": false,
+"Data": false,
+"Effect_Resource": false,
+"Game_Resource": false,
+"Limp": false,
+"Movement Speed": false,
+"ResourceTablesImport": false,
+"Resource_Saved_Data": false,
+"Silenced": false,
+"Sprite Image": false,
+"Text Image": false
+}
