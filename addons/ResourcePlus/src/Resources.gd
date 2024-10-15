@@ -5,6 +5,7 @@ const MENU_ITEM_NAVIGATE = 0
 const MENU_ITEM_CREATE = 1
 const MENU_ITEM_COLOR = 2
 const MENU_ITEM_OPEN_SCRIPT = 3
+const MENU_ITEM_CREATE_NEW_RESOURCE = 5
 
 @onready var tree = $VBoxContainer/Tree
 
@@ -19,9 +20,46 @@ var _nodes = {}
 var data : Resource_Saved_Data
 
 func _ready():
-	editor_file_system.filesystem_changed.connect(_on_filesystem_changed)
+	
+	if editor_file_system != null:
+	
+		editor_file_system.filesystem_changed.connect(_on_filesystem_changed)
 	data = load("res://addons/ResourcePlus/src/data.tres")
+	if data == null:
+		data = Resource_Saved_Data.new()
+		ResourceSaver.save(data,"res://addons/ResourcePlus/src/data.tres")
 	collapse_check()
+
+	$BaseMenu.set_item_icon(0,base_control.get_theme_icon("Folder", "EditorIcons"))
+	$BaseMenu.set_item_icon(1,base_control.get_theme_icon("Script", "EditorIcons"))
+	$BaseMenu.set_item_icon(3,base_control.get_theme_icon("Add","EditorIcons"))
+	$BaseMenu.set_item_icon(5,base_control.get_theme_icon("ColorPicker","EditorIcons"))
+	$InstanceMenu.set_item_icon(0,base_control.get_theme_icon("Folder", "EditorIcons"))
+	$BlankMenu.set_item_icon(0,base_control.get_theme_icon("ScriptCreate", "EditorIcons"))
+	tree.item_edited.connect(on_item_edited)
+	$VBoxContainer/PanelContainer/HBoxContainer/Create_New_Resource_Type.icon = base_control.get_theme_icon("ScriptCreate", "EditorIcons")
+
+var node_to_be_edited : TreeItem
+
+func on_item_edited() -> void:
+	
+	if node_to_be_edited == null:
+		return
+
+	var path : String = node_to_be_edited.get_metadata(0)
+	var new_name = node_to_be_edited.get_text(0)
+	new_name = new_name.replace(" ","_")
+	
+	var splits = path.split("/")
+	var prev_name = splits[splits.size()-1].get_basename()
+
+	var new_path = path.replace(prev_name,new_name)
+
+	
+	var err = DirAccess.rename_absolute(path,new_path)
+	EditorInterface.get_resource_filesystem().scan()
+	print(err)
+	pass
 
 func find_resources(dir: EditorFileSystemDirectory) -> Array:
 	var results: Array = []
@@ -49,8 +87,8 @@ func _on_visibility_changed():
 		return
 	refresh()
 
-func _exit_() -> void:
-	ResourceSaver.save(data,data.resource_path)
+func _exit_tree() -> void:
+	ResourceSaver.save(data,"res://addons/ResourcePlus/src/data.tres")
 
 
 func _on_filesystem_changed():
@@ -60,18 +98,27 @@ func _on_filesystem_changed():
 
 func collapse_check():
 	for i in _nodes:
-		var text = i.get_text(0)
-		if data.RESOURCE_COLLAPSED_VALUE.has(text):
-			i.collapsed = data.RESOURCE_COLLAPSED_VALUE[text]
+		if i != null:
+			var text = i.get_text(0)
+			if data.RESOURCE_COLLAPSED_VALUE.has(text):
+				i.collapsed = data.RESOURCE_COLLAPSED_VALUE[text]
 
 func refresh():
+	
+	if base_control == null:
+		return
+	
+	if tree == null:
+		return
+	
 	tree.base_control = base_control
 	
 
 	
 	##store collapsed identity
 	for i in _nodes:
-		data.RESOURCE_COLLAPSED_VALUE[i.get_text(0)] = i.collapsed
+		if i != null:
+			data.RESOURCE_COLLAPSED_VALUE[i.get_text(0)] = i.collapsed
 
 	
 	_nodes.clear()
@@ -113,11 +160,29 @@ func refresh():
 	for resource in resource_files:
 		if resource["base"] not in class_nodes:
 			continue
-		var item = tree.create_item(class_nodes[resource["base"]])
+			
+		if resource["base"] == "Resource_Saved_Data":
+			continue
+			
+		var item : TreeItem = tree.create_item(class_nodes[resource["base"]])
 		var name = resource["path"].split("/")[-1].split(".")[0].capitalize()
-		var icon = base_control.get_theme_icon("ResourcePreloader", "EditorIcons")
+		
+
+
+
+		
+		var base_icon = base_control.get_theme_icon("ResourcePreloader", "EditorIcons")
+		var icon = class_nodes[resource["base"]].get_meta("ICON")
+		var fold_icon = base_control.get_theme_icon("Folder", "EditorIcons")
+		
+		if icon == fold_icon:
+			icon = base_icon
+
+		
+		
 		item.set_icon(0, icon)
 		item.set_text(0, name)
+		item.set_metadata(0,resource["path"])
 		_nodes[item] = resource
 
 
@@ -125,9 +190,9 @@ func refresh():
 		collapse_check()
 
 	for i in _nodes:
-
-		if i.get_metadata(0) == "Folder":
-			process_colors(i)
+		if i != null:
+			if i.get_metadata(0) == "Folder":
+				process_colors(i)
 
 
 
@@ -138,16 +203,22 @@ func _on__item_selected():
 		return
 
 
+
+
 func _on_gui_input(event:InputEvent):
 	if event is not InputEventMouseButton: 
 		return
 
 	var mouse_pos = get_global_mouse_position()
+	
+	
+	
 	var item = tree.get_item_at_position(mouse_pos - tree.get_global_position())
 		
 	if event.button_index == MOUSE_BUTTON_RIGHT:
 		
 		if item == null:
+			$BlankMenu.popup(Rect2i(mouse_pos.x,mouse_pos.y,0,0))
 			return
 		
 		if item:
@@ -166,8 +237,19 @@ func _on_gui_input(event:InputEvent):
 	elif event.button_index == MOUSE_BUTTON_LEFT and event.pressed:
 		if item != null:
 			if item.get_metadata(0) != "Folder":
+				
+				
+				item.set_editable(0,event.double_click)
+				if event.double_click:
+					node_to_be_edited = item
+				else:
+					node_to_be_edited = null
+
+
 				EditorInterface.edit_resource(load(_nodes[item]["path"]))
 	
+
+		
 	
 	
 	#elif event.button_index == MOUSE_BUTTON_LEFT and event.double_click:
@@ -175,14 +257,29 @@ func _on_gui_input(event:InputEvent):
 			#EditorInterface.edit_resource(load(_nodes[item]["path"]))
 	
 
-
-
+## Change to script editor after new resource type is created.
+func on_script_created(newscript) -> void:
+	EditorInterface.edit_resource(load(newscript.resource_path))
+	refresh()
 
 func _on_popup_menu_id_pressed(id:int):
 	var item = tree.get_selected()
 	if not item:
+		if id == MENU_ITEM_CREATE_NEW_RESOURCE:
+			var dialog = ScriptCreateDialog.new()
+			add_child(dialog)
+			dialog.config("Resource","res://new_resource_type.gd")
+			dialog.popup_centered()
+			dialog.script_created.connect(on_script_created)
+
+		
 		return
-	
+	if id == MENU_ITEM_CREATE_NEW_RESOURCE:
+		var dialog = ScriptCreateDialog.new()
+		add_child(dialog)
+		dialog.config("Resource","res://new_resource_type.gd")
+		dialog.popup_centered()
+		dialog.script_created.connect(on_script_created)
 	if id == MENU_ITEM_NAVIGATE:
 		dock_file_system.navigate_to_path(_nodes[item]["path"])
 	if id == MENU_ITEM_CREATE:
@@ -194,6 +291,11 @@ func _on_popup_menu_id_pressed(id:int):
 
 	if id == MENU_ITEM_OPEN_SCRIPT:
 		EditorInterface.edit_resource(load(_nodes[item]["path"]))
+
+
+
+	#if id == MENU_ITEM_RENAME:
+		
 
 func _on_file_dialog_file_selected(path:String):
 	var item = tree.get_selected()
@@ -215,9 +317,11 @@ func _on_collapse_pressed() -> void:
 	else:
 		$VBoxContainer/PanelContainer/HBoxContainer/Collapse.text = "v"
 	for i in _nodes:
-		i.collapsed = all_collapsed
+		if i != null:
+			i.collapsed = all_collapsed
 
 	for i in data.RESOURCE_COLLAPSED_VALUE:
+		
 		data.RESOURCE_COLLAPSED_VALUE[i] = all_collapsed
 
 var SELECTED_COLOR : Color
@@ -254,5 +358,13 @@ func _on_select_pressed() -> void:
 	$ColorPanel.hide()
 	var fold = tree.get_selected()
 	data.RESOURCE_SAVED_DATA[_nodes[fold]["path"]] = SELECTED_COLOR
-	ResourceSaver.save(data,data.resource_path)
+	ResourceSaver.save(data,"res://addons/ResourcePlus/src/data.tres")
 	process_colors(fold)
+
+
+func _on_create_new_resource_type_pressed() -> void:
+	var dialog = ScriptCreateDialog.new()
+	add_child(dialog)
+	dialog.config("Resource","res://new_resource_type.gd")
+	dialog.popup_centered()
+	dialog.script_created.connect(on_script_created)

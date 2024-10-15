@@ -8,8 +8,6 @@
 anchors_preset = 15
 anchor_right = 1.0
 anchor_bottom = 1.0
-offset_top = -2.0
-offset_bottom = -2.0
 grow_horizontal = 2
 grow_vertical = 2
 size_flags_horizontal = 3
@@ -22,34 +20,40 @@ size_flags_horizontal = 3
 
 [node name="PanelContainer" type="PanelContainer" parent="VBoxContainer"]
 layout_mode = 2
-size_flags_vertical = 3
-size_flags_stretch_ratio = 0.1
+size_flags_vertical = 0
+size_flags_stretch_ratio = 0.01
 
 [node name="HBoxContainer" type="HBoxContainer" parent="VBoxContainer/PanelContainer"]
 layout_mode = 2
 
-[node name="Label" type="Label" parent="VBoxContainer/PanelContainer/HBoxContainer"]
+[node name="Create_New_Resource_Type" type="Button" parent="VBoxContainer/PanelContainer/HBoxContainer"]
 layout_mode = 2
-text = " Search : "
+tooltip_text = "Create a new resource type."
+flat = true
 
 [node name="Search_Function" type="TextEdit" parent="VBoxContainer/PanelContainer/HBoxContainer"]
 layout_mode = 2
 size_flags_horizontal = 3
 size_flags_vertical = 3
 size_flags_stretch_ratio = 0.05
+placeholder_text = "Search :"
+scroll_fit_content_height = true
 script = ExtResource("2_e5cvm")
 
-[node name="Cancel_Search" type="Button" parent="VBoxContainer/PanelContainer/HBoxContainer"]
-layout_mode = 2
-size_flags_horizontal = 3
-size_flags_stretch_ratio = 0.01
-theme_override_colors/font_hover_pressed_color = Color(1, 0.708856, 0.762337, 1)
-theme_override_colors/font_hover_color = Color(1, 0.641748, 0.58665, 1)
-theme_override_colors/font_pressed_color = Color(0.371817, 5.62528e-07, 9.62615e-08, 1)
-theme_override_colors/font_color = Color(1, 0, 0, 1)
-text = "x"
+[node name="Cancel_Search" type="Button" parent="VBoxContainer/PanelContainer/HBoxContainer/Search_Function"]
+layout_mode = 1
+anchors_preset = -1
+anchor_left = 0.967834
+anchor_top = 0.0555556
+anchor_right = 0.999054
+anchor_bottom = 0.972222
+grow_horizontal = 0
+grow_vertical = 2
+flat = true
+metadata/_edit_use_anchors_ = true
 
 [node name="Collapse" type="Button" parent="VBoxContainer/PanelContainer/HBoxContainer"]
+visible = false
 layout_mode = 2
 text = "^"
 
@@ -80,6 +84,11 @@ size = Vector2i(179, 100)
 item_count = 1
 item_0/text = "Show in FileSystem"
 
+[node name="BlankMenu" type="PopupMenu" parent="."]
+item_count = 1
+item_0/text = "Create New Resource Type"
+item_0/id = 5
+
 [node name="FileDialog" type="FileDialog" parent="."]
 initial_position = 1
 size = Vector2i(500, 500)
@@ -104,12 +113,14 @@ layout_mode = 2
 text = "SELECT"
 
 [connection signal="visibility_changed" from="." to="." method="_on_visibility_changed"]
+[connection signal="pressed" from="VBoxContainer/PanelContainer/HBoxContainer/Create_New_Resource_Type" to="." method="_on_create_new_resource_type_pressed"]
 [connection signal="text_changed" from="VBoxContainer/PanelContainer/HBoxContainer/Search_Function" to="VBoxContainer/PanelContainer/HBoxContainer/Search_Function" method="_on_text_changed"]
-[connection signal="pressed" from="VBoxContainer/PanelContainer/HBoxContainer/Cancel_Search" to="VBoxContainer/PanelContainer/HBoxContainer/Search_Function" method="_on_cancel_search_pressed"]
+[connection signal="pressed" from="VBoxContainer/PanelContainer/HBoxContainer/Search_Function/Cancel_Search" to="VBoxContainer/PanelContainer/HBoxContainer/Search_Function" method="_on_cancel_search_pressed"]
 [connection signal="pressed" from="VBoxContainer/PanelContainer/HBoxContainer/Collapse" to="." method="_on_collapse_pressed"]
 [connection signal="gui_input" from="VBoxContainer/Tree" to="." method="_on_gui_input"]
 [connection signal="id_pressed" from="BaseMenu" to="." method="_on_popup_menu_id_pressed"]
 [connection signal="id_pressed" from="InstanceMenu" to="." method="_on_popup_menu_id_pressed"]
+[connection signal="id_pressed" from="BlankMenu" to="." method="_on_popup_menu_id_pressed"]
 [connection signal="file_selected" from="FileDialog" to="." method="_on_file_dialog_file_selected"]
 [connection signal="visibility_changed" from="ColorPanel" to="." method="_on_color_panel_visibility_changed"]
 [connection signal="color_changed" from="ColorPanel/VBoxContainer/ColorPicker" to="." method="_on_color_picker_color_changed"]
