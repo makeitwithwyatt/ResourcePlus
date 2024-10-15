@@ -58,7 +58,6 @@ func on_item_edited() -> void:
 	
 	var err = DirAccess.rename_absolute(path,new_path)
 	EditorInterface.get_resource_filesystem().scan()
-	print(err)
 	pass
 
 func find_resources(dir: EditorFileSystemDirectory) -> Array:
