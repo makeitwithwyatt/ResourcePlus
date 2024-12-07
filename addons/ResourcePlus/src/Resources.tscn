@@ -1,49 +1,127 @@
-[gd_scene load_steps=3 format=3 uid="uid://dpxb62ugj0y02"]
+[gd_scene load_steps=4 format=3 uid="uid://dpxb62ugj0y02"]
 
 [ext_resource type="Script" path="res://addons/ResourcePlus/src/Resources.gd" id="1_2mmtg"]
 [ext_resource type="Script" path="res://addons/ResourcePlus/src/ResourceTree.gd" id="2_22tl0"]
+[ext_resource type="Script" path="res://addons/ResourcePlus/src/search_function.gd" id="2_e5cvm"]
 
-[node name="Resources" type="VBoxContainer"]
+[node name="Resources" type="HBoxContainer"]
 anchors_preset = 15
 anchor_right = 1.0
 anchor_bottom = 1.0
-offset_top = -2.0
-offset_bottom = -2.0
 grow_horizontal = 2
 grow_vertical = 2
 size_flags_horizontal = 3
 size_flags_vertical = 3
 script = ExtResource("1_2mmtg")
 
-[node name="Tree" type="Tree" parent="."]
+[node name="VBoxContainer" type="VBoxContainer" parent="."]
 layout_mode = 2
+size_flags_horizontal = 3
+
+[node name="PanelContainer" type="PanelContainer" parent="VBoxContainer"]
+layout_mode = 2
+size_flags_vertical = 0
+size_flags_stretch_ratio = 0.01
+
+[node name="HBoxContainer" type="HBoxContainer" parent="VBoxContainer/PanelContainer"]
+layout_mode = 2
+
+[node name="Create_New_Resource_Type" type="Button" parent="VBoxContainer/PanelContainer/HBoxContainer"]
+layout_mode = 2
+tooltip_text = "Create a new resource type."
+flat = true
+
+[node name="Search_Function" type="TextEdit" parent="VBoxContainer/PanelContainer/HBoxContainer"]
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_vertical = 3
+size_flags_stretch_ratio = 0.05
+placeholder_text = "Search :"
+scroll_fit_content_height = true
+script = ExtResource("2_e5cvm")
+
+[node name="Cancel_Search" type="Button" parent="VBoxContainer/PanelContainer/HBoxContainer/Search_Function"]
+layout_mode = 1
+anchors_preset = -1
+anchor_left = 0.967834
+anchor_top = 0.0555556
+anchor_right = 0.999054
+anchor_bottom = 0.972222
+grow_horizontal = 0
+grow_vertical = 2
+flat = true
+metadata/_edit_use_anchors_ = true
+
+[node name="Collapse" type="Button" parent="VBoxContainer/PanelContainer/HBoxContainer"]
+visible = false
+layout_mode = 2
+text = "^"
+
+[node name="Tree" type="Tree" parent="VBoxContainer"]
+layout_mode = 2
+size_flags_horizontal = 3
 size_flags_vertical = 3
 hide_root = true
 script = ExtResource("2_22tl0")
 
 [node name="BaseMenu" type="PopupMenu" parent="."]
 size = Vector2i(179, 100)
-item_count = 3
-item_0/text = "Create New"
-item_0/id = 1
-item_1/text = ""
-item_1/id = 2
-item_1/separator = true
-item_2/text = "Show in FileSystem"
-item_2/id = 0
+item_count = 6
+item_0/text = "Show in Filesystem"
+item_1/text = "Open Script"
+item_1/id = 3
+item_2/id = 4
+item_2/separator = true
+item_3/text = "Create Item"
+item_3/id = 1
+item_4/id = 5
+item_4/separator = true
+item_5/text = "Add Color"
+item_5/id = 2
 
 [node name="InstanceMenu" type="PopupMenu" parent="."]
 size = Vector2i(179, 100)
 item_count = 1
 item_0/text = "Show in FileSystem"
-item_0/id = 0
+
+[node name="BlankMenu" type="PopupMenu" parent="."]
+item_count = 1
+item_0/text = "Create New Resource Type"
+item_0/id = 5
 
 [node name="FileDialog" type="FileDialog" parent="."]
-size = Vector2i(392, 159)
+initial_position = 1
+size = Vector2i(500, 500)
 filters = PackedStringArray("*.tres")
 
+[node name="ColorPanel" type="PopupPanel" parent="."]
+title = "COLOR"
+initial_position = 2
+size = Vector2i(306, 619)
+
+[node name="VBoxContainer" type="VBoxContainer" parent="ColorPanel"]
+offset_left = 4.0
+offset_top = 4.0
+offset_right = 302.0
+offset_bottom = 615.0
+
+[node name="ColorPicker" type="ColorPicker" parent="ColorPanel/VBoxContainer"]
+layout_mode = 2
+
+[node name="Select" type="Button" parent="ColorPanel/VBoxContainer"]
+layout_mode = 2
+text = "SELECT"
+
 [connection signal="visibility_changed" from="." to="." method="_on_visibility_changed"]
-[connection signal="gui_input" from="Tree" to="." method="_on_tree_gui_input"]
+[connection signal="pressed" from="VBoxContainer/PanelContainer/HBoxContainer/Create_New_Resource_Type" to="." method="_on_create_new_resource_type_pressed"]
+[connection signal="text_changed" from="VBoxContainer/PanelContainer/HBoxContainer/Search_Function" to="VBoxContainer/PanelContainer/HBoxContainer/Search_Function" method="_on_text_changed"]
+[connection signal="pressed" from="VBoxContainer/PanelContainer/HBoxContainer/Search_Function/Cancel_Search" to="VBoxContainer/PanelContainer/HBoxContainer/Search_Function" method="_on_cancel_search_pressed"]
+[connection signal="pressed" from="VBoxContainer/PanelContainer/HBoxContainer/Collapse" to="." method="_on_collapse_pressed"]
+[connection signal="gui_input" from="VBoxContainer/Tree" to="." method="_on_gui_input"]
 [connection signal="id_pressed" from="BaseMenu" to="." method="_on_popup_menu_id_pressed"]
 [connection signal="id_pressed" from="InstanceMenu" to="." method="_on_popup_menu_id_pressed"]
+[connection signal="id_pressed" from="BlankMenu" to="." method="_on_popup_menu_id_pressed"]
 [connection signal="file_selected" from="FileDialog" to="." method="_on_file_dialog_file_selected"]
+[connection signal="visibility_changed" from="ColorPanel" to="." method="_on_color_panel_visibility_changed"]
+[connection signal="color_changed" from="ColorPanel/VBoxContainer/ColorPicker" to="." method="_on_color_picker_color_changed"]
+[connection signal="pressed" from="ColorPanel/VBoxContainer/Select" to="." method="_on_select_pressed"]

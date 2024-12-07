@@ -12,10 +12,22 @@ func add_base_resource(resource):
 	var parent = get_root()
 	if resource["base"] != "Resource":
 		parent = tree_nodes[resource["base"]]
+	
+	if resource["class"] == "Resource_Saved_Data":
+		return
+	
 	var item = create_item(parent)
 	item.set_text(0, resource["class"])
-	var load_icon = base_control.get_theme_icon("Folder", "EditorIcons")
-	item.set_icon(0, load_icon)
+	item.set_metadata(0,"Folder")
+	
+	var icon = base_control.get_theme_icon("Folder", "EditorIcons")
+
+	if resource["icon"].length() != 0:
+		icon = load(resource["icon"])
+	
+	item.set_meta("ICON",icon)
+	
+	item.set_icon(0, base_control.get_theme_icon("Folder", "EditorIcons"))
 	tree_nodes[resource["class"]] = item
 	return item
 
